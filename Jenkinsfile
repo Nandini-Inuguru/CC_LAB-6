@@ -18,8 +18,8 @@ pipeline {
         stage('Deploy Backend Containers') {
             steps {
                 sh '''
-                echo "Creating Docker network..."
-                docker network create app-network || true
+                echo "Creating Docker network if not exists..."
+                docker network inspect app-network >/dev/null 2>&1 || docker network create app-network
 
                 echo "Removing old backend containers..."
                 docker rm -f backend1 backend2 || true
@@ -42,8 +42,13 @@ pipeline {
                   --name nginx-lb \
                   --network app-network \
                   -p 80:80 \
-                  -v $(pwd)/nginx/default.conf:/etc/nginx/conf.d/default.conf \
                   nginx
+
+                echo "Copying nginx configuration..."
+                docker cp nginx/default.conf nginx-lb:/etc/nginx/conf.d/default.conf
+
+                echo "Restarting nginx container to apply config..."
+                docker restart nginx-lb
                 '''
             }
         }
