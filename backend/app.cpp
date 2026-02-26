@@ -35,18 +35,20 @@ int main() {
         return 1;
     }
     
-    std::cout << "Server listening on port 8080 (hostname: " << hostname << ")" << std::endl;
+    std::cout << "UPDATED Server listening on port 8080 (hostname: " 
+              << hostname << ")" << std::endl;
     
     // Accept connections in loop
     while(true) {
         int client_fd = accept(server_fd, NULL, NULL);
         if (client_fd < 0) continue;
         
-        // Simple HTTP response
         std::string response = "HTTP/1.1 200 OK\r\n";
         response += "Content-Type: text/plain\r\n";
         response += "Connection: close\r\n\r\n";
-        response += "Served by backend: " + std::string(hostname) + "\n";
+        
+        response += "=== CI/CD PIPELINE SUCCESSFULLY UPDATED ===\n";
+        response += "Served by backend container: " + std::string(hostname) + "\n";
         
         send(client_fd, response.c_str(), response.length(), 0);
         close(client_fd);
